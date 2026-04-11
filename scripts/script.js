@@ -1,0 +1,381 @@
+/* --- Scroll Reveal --- */
+const revealEls = document.querySelectorAll('.reveal');
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.1 });
+revealEls.forEach(el => ro.observe(el));
+
+/* --- Input sanitizer (XSS) --- */
+function sanitize(s) {
+  return s.replace(/[<>"'&\/]/g, c => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '&': '&amp;', '/': '&#x2F;' }[c]));
+}
+function validEmail(e) {
+  return /^[^\s@<>'"]{1,64}@[^\s@<>'"]{1,255}\.[a-zA-Z]{2,}$/.test(e);
+}
+
+/* --- Keyboard accessibility --- */
+document.querySelectorAll('.course-tile').forEach(el => {
+  el.addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); el.click(); }
+  });
+});
+
+/* --- Lab video poster overlays: click/Enter hides poster & plays video --- */
+(function () {
+  // Works for <video> elements only (self-hosted).
+  // For iframes (YouTube/Vimeo), the poster is hidden and the iframe takes over.
+  const pairs = [
+    { poster: 'labPoster1', video: 'labVideo1' },
+    { poster: 'labPoster2', video: 'labVideo2' },
+    { poster: 'labPoster3', video: 'labVideo3' },
+  ];
+
+  pairs.forEach(({ poster: posterId, video: videoId }) => {
+    const poster = document.getElementById(posterId);
+    const video = document.getElementById(videoId);
+    if (!poster) return;
+
+    function activate() {
+      poster.classList.add('hidden');
+      // If it's a real <video> with a src, play it
+      if (video && video.tagName === 'VIDEO' && video.src && video.src !== window.location.href) {
+        video.play().catch(() => { });
+      }
+      // If it's an iframe (YouTube/Vimeo), autoplay is handled by ?autoplay=1 in src
+    }
+
+    poster.addEventListener('click', activate);
+    poster.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+    });
+
+    // If video has no src, keep poster visible but non-interactive (shows "coming soon")
+    if (video && video.tagName === 'VIDEO' && (!video.src || video.src === window.location.href)) {
+      poster.style.cursor = 'default';
+      // Hide the spin animation so it doesn't suggest interactivity
+      const outer = poster.querySelector('.pr-outer');
+      if (outer) outer.style.animationPlayState = 'paused';
+    }
+  });
+})();
+
+/* --- Swipeable Card Stack --- */
+(function () {
+  const deck = document.getElementById('cardDeck');
+  const dotsEl = document.getElementById('cardDots');
+  if (!deck || !dotsEl) return;
+
+  const cards = Array.from(deck.querySelectorAll('.photo-card'));
+  const dots = Array.from(dotsEl.querySelectorAll('.card-dot'));
+  const total = cards.length;
+  let current = 0;
+  let animating = false;
+
+  function getState(idx) {
+    const diff = ((idx - current) % total + total) % total;
+    if (diff === 0) return 'state-active';
+    if (diff === total - 1) return 'state-prev';
+    if (diff === 1) return 'state-next';
+    return 'state-hidden';
+  }
+
+  function applyStates() {
+    cards.forEach((c, i) => {
+      c.className = 'photo-card ' + getState(i);
+    });
+    dots.forEach((d, i) => {
+      const active = i === current;
+      d.classList.toggle('active', active);
+      d.setAttribute('aria-selected', String(active));
+    });
+    deck.setAttribute('aria-label', 'Institute photos — ' + (current + 1) + ' of ' + total);
+  }
+
+  function goTo(idx, dir) {
+    if (animating) return;
+    animating = true;
+    const prev = current;
+    current = ((idx % total) + total) % total;
+    const outClass = dir === 'left' ? 'swipe-left-out' : 'swipe-right-out';
+    const prevCard = cards[prev];
+    prevCard.classList.add(outClass);
+    setTimeout(() => {
+      prevCard.classList.remove(outClass);
+      applyStates();
+      animating = false;
+    }, 430);
+    applyStates();
+  }
+
+  function next() { goTo(current + 1, 'left'); }
+  function prev() { goTo(current - 1, 'right'); }
+
+  document.getElementById('stackNext').addEventListener('click', next);
+  document.getElementById('stackPrev').addEventListener('click', prev);
+
+  dots.forEach(d => {
+    d.addEventListener('click', () => {
+      const target = parseInt(d.dataset.dot, 10);
+      if (target === current) return;
+      goTo(target, target > current ? 'left' : 'right');
+    });
+  });
+
+  // Drag / swipe
+  let dragStart = null, dragX = 0;
+  const THRESHOLD = 52;
+
+  function onDragStart(clientX) {
+    if (animating) return;
+    dragStart = clientX; dragX = 0;
+    cards[current].classList.add('is-dragging');
+  }
+  function onDragMove(clientX) {
+    if (dragStart === null) return;
+    dragX = clientX - dragStart;
+    cards[current].style.transform = 'translateX(' + dragX + 'px) rotate(' + (dragX * 0.04) + 'deg)';
+  }
+  function onDragEnd() {
+    if (dragStart === null) return;
+    cards[current].classList.remove('is-dragging');
+    cards[current].style.transform = '';
+    if (dragX < -THRESHOLD) next();
+    else if (dragX > THRESHOLD) prev();
+    dragStart = null; dragX = 0;
+  }
+
+  deck.addEventListener('mousedown', e => onDragStart(e.clientX));
+  window.addEventListener('mousemove', e => onDragMove(e.clientX));
+  window.addEventListener('mouseup', onDragEnd);
+  deck.addEventListener('touchstart', e => onDragStart(e.touches[0].clientX), { passive: true });
+  deck.addEventListener('touchmove', e => { e.preventDefault(); onDragMove(e.touches[0].clientX); }, { passive: false });
+  deck.addEventListener('touchend', onDragEnd);
+
+  // Keyboard
+  deck.setAttribute('tabindex', '0');
+  deck.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+  });
+
+  // Auto-advance every 5 seconds, pause on hover/touch
+  let autoTimer = setInterval(next, 5000);
+  const pauseAuto = () => clearInterval(autoTimer);
+  const resumeAuto = () => { autoTimer = setInterval(next, 5000); };
+  deck.addEventListener('mouseenter', pauseAuto);
+  deck.addEventListener('mouseleave', resumeAuto);
+  deck.addEventListener('touchstart', pauseAuto, { passive: true });
+
+  applyStates();
+})();
+
+/* =============================================
+   PHOTO GALLERY DATA & RENDER
+============================================= */
+// Replace src values below with your actual image paths, e.g. "assets/gallery/photo-01.jpg"
+const photoSrcs = [
+  "", "", "",
+  "", "", "",
+  "", "", ""
+];
+
+function buildPhotoGallery() {
+  const grid = document.getElementById('photoGalleryGrid');
+  grid.innerHTML = photoSrcs.map((src, i) => `
+    <div class="gallery-photo-item">
+      <img src="assets/images/inside/img${i + 1}.jpg" alt="Campus photo ${i + 1}" style="width:100%;height:100%;object-fit:cover;display:block;">
+    </div>
+  `).join('');
+}
+
+/* =============================================
+   VIDEO GALLERY DATA & RENDER
+============================================= */
+// Replace src values below with your actual video paths, e.g. "assets/videos/lab-04.mp4"
+const videoSrcs = [
+  "", "",
+  "", "",
+  "", "",
+  "", ""
+];
+
+function buildVideoGallery() {
+  const grid = document.getElementById('videoGalleryGrid');
+  grid.innerHTML = videoSrcs.map((src, i) => `
+    <div class="gallery-video-item">
+      <div class="gallery-video-wrap">
+        <video playsinline controls src="assets/videos/inner/in_v${i + 1}.mp4" aria-label="Recorded video ${i + 1}"
+          style="width:100%;height:100%;display:block;object-fit:cover;background:#0a0a0a;">
+        </video>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* =============================================
+   MODAL OPEN / CLOSE LOGIC
+============================================= */
+/** Pauses all <video> elements on the page */
+function pauseAllVideos() {
+  document.querySelectorAll('video').forEach(v => v.pause());
+}
+
+function openModal(id) {
+  const m = document.getElementById(id);
+  m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  const m = document.getElementById(id);
+  m.classList.remove('open');
+  document.body.style.overflow = '';
+  // Stop any videos playing inside the closed modal
+  const innerVideos = m.querySelectorAll('video');
+  innerVideos.forEach(v => v.pause());
+}
+
+// Build galleries once
+buildPhotoGallery();
+buildVideoGallery();
+
+// Photo gallery triggers
+document.getElementById('openPhotoGallery').addEventListener('click', () => openModal('photoGalleryModal'));
+document.getElementById('openPhotoGallery').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal('photoGalleryModal'); }
+});
+document.getElementById('closePhotoGallery').addEventListener('click', () => closeModal('photoGalleryModal'));
+
+// Video gallery triggers
+document.getElementById('openVideoGallery').addEventListener('click', () => openModal('videoGalleryModal'));
+document.getElementById('closeVideoGallery').addEventListener('click', () => closeModal('videoGalleryModal'));
+
+// Close on overlay click (outside modal content)
+['photoGalleryModal', 'videoGalleryModal', 'pdfScheduleModal', 'pdfScheduleModal2', 'pdfScheduleModal3'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function (e) {
+    if (e.target === this) closeModal(id);
+  });
+});
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal('photoGalleryModal');
+    closeModal('videoGalleryModal');
+    closeModal('pdfScheduleModal');
+    closeModal('pdfScheduleModal2');
+    closeModal('pdfScheduleModal3');
+  }
+});
+
+/* =============================================
+   PDF SCHEDULE MODAL — open on card click
+============================================= */
+[
+  { cardId: 'scheduleCard', modalId: 'pdfScheduleModal', closeId: 'closePdfSchedule' },
+  { cardId: 'scheduleCard2', modalId: 'pdfScheduleModal2', closeId: 'closePdfSchedule2' },
+  { cardId: 'scheduleCard3', modalId: 'pdfScheduleModal3', closeId: 'closePdfSchedule3' },
+].forEach(({ cardId, modalId, closeId }) => {
+  const card = document.getElementById(cardId);
+  if (!card) return;
+
+  function openSchedule() { openModal(modalId); }
+
+  card.addEventListener('click', openSchedule);
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSchedule(); }
+  });
+
+  document.getElementById(closeId).addEventListener('click', () => closeModal(modalId));
+});
+
+/* =============================================
+   VIDEO THEATRE — open on lab-video-wrap or gallery-video-wrap click
+============================================= */
+(function () {
+  const overlay = document.getElementById('videoTheatre');
+  const backdrop = document.getElementById('theatreBackdrop');
+  const theatreVid = document.getElementById('theatreVideo');
+  const theatreTitle = document.getElementById('theatreTitle');
+  const closeBtn = document.getElementById('theatreClose');
+
+  if (!overlay || !theatreVid) return;
+
+  /** Opens the theatre modal and plays the given video src */
+  function openTheatre(src, title) {
+    if (!src) return;                          // empty src → nothing to show
+    pauseAllVideos();                          // Stop all other videos first
+    theatreTitle.textContent = title || '';
+    theatreVid.src = src;
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    theatreVid.play().catch(() => { });         // auto-play; browser may require interaction
+  }
+
+  /** Closes the theatre modal and stops playback */
+  function closeTheatre() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    theatreVid.pause();
+    theatreVid.src = '';                       // release the resource
+    theatreTitle.textContent = '';
+  }
+
+  // ── Close triggers ──────────────────────────────────────────────
+  closeBtn.addEventListener('click', closeTheatre);
+  backdrop.addEventListener('click', closeTheatre);
+
+  // Escape key (added alongside existing Escape handler)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeTheatre();
+  });
+
+  // ── LAB videos (lab-video-wrap / lab-poster) ─────────────────────
+  // Intercept the existing poster click so theatre opens instead of inline play.
+  // We query all .lab-video-wrap elements and listen on the wrapping div.
+  document.querySelectorAll('.lab-video-wrap').forEach(wrap => {
+    const vid = wrap.querySelector('video');
+    const poster = wrap.querySelector('.lab-poster');
+
+    const src = vid ? vid.getAttribute('src') : '';
+    const label = vid ? (vid.getAttribute('aria-label') || 'Lab Video') : 'Lab Video';
+
+    // Clicking anywhere inside the wrap (poster button OR the video element itself)
+    // should open the theatre — but only if there is an actual src.
+    // capture:true ensures this fires BEFORE the inner poster bubble listener.
+    wrap.addEventListener('click', e => {
+      if (!src || src === window.location.href) return;   // no video yet
+      e.stopPropagation();
+      e.preventDefault();
+      openTheatre(src, label);
+    }, true); // capture phase
+
+    // If the poster has a click listener from the earlier IIFE, its 'activate'
+    // would normally trigger. We suppress inline play by capturing in the
+    // wrap's listener above (stopPropagation alone is enough because the poster
+    // listener is on the same element tree — wrap captures first via useCapture).
+    // For safety also stop the poster's default action on keydown:
+    if (poster) {
+      poster.addEventListener('keydown', e => {
+        if ((e.key === 'Enter' || e.key === ' ') && src && src !== window.location.href) {
+          e.preventDefault();
+          e.stopPropagation();
+          openTheatre(src, label);
+        }
+      }, true); // capture phase so it runs before the existing listener
+    }
+  });
+
+  // ── GALLERY videos (gallery-video-wrap, generated by buildVideoGallery) ──
+  // Use event delegation on the grid since tiles are injected dynamically.
+  const videoGrid = document.getElementById('videoGalleryGrid');
+  if (videoGrid) {
+    videoGrid.addEventListener('play', e => {
+      const playingVid = e.target;
+      if (playingVid.tagName === 'VIDEO') {
+        document.querySelectorAll('video').forEach(v => {
+          if (v !== playingVid) v.pause();
+        });
+      }
+    }, true); // use capture to catch event bubbles from <video>
+  }
+})();
