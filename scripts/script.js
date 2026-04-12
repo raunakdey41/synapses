@@ -183,7 +183,7 @@ function buildPhotoGallery() {
   const grid = document.getElementById('photoGalleryGrid');
   grid.innerHTML = photoSrcs.map((src, i) => `
     <div class="gallery-photo-item">
-      <img src="assets/images/inside/img${i + 1}.jpg" alt="Campus photo ${i + 1}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <img src="assets/images/inside/img${i + 1}.jpg" alt="Campus photo ${i + 1}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;">
     </div>
   `).join('');
 }
@@ -203,10 +203,17 @@ function buildVideoGallery() {
   const grid = document.getElementById('videoGalleryGrid');
   grid.innerHTML = videoSrcs.map((src, i) => `
     <div class="gallery-video-item">
-      <div class="gallery-video-wrap">
-        <video playsinline controls src="assets/videos/inner/in_v${i + 1}.mp4" aria-label="Recorded video ${i + 1}"
-          style="width:100%;height:100%;display:block;object-fit:cover;background:#0a0a0a;">
+      <div class="gallery-video-wrap" data-src="assets/videos/inner/in_v${i + 1}.mp4" data-label="Recorded video ${i + 1}">
+        <video playsinline preload="metadata" src="assets/videos/inner/in_v${i + 1}.mp4" aria-label="Recorded video ${i + 1}"
+          style="width:100%;height:100%;display:block;object-fit:cover;background:#0a0a0a;" tabindex="-1">
         </video>
+        <div class="gv-poster" aria-label="Play video ${i + 1}" role="button" tabindex="0">
+          <div class="gv-play-btn" aria-hidden="true">
+            <div class="pr-outer"></div>
+            <div class="pr-inner"></div>
+            <div class="pr-tri"></div>
+          </div>
+        </div>
       </div>
     </div>
   `).join('');
@@ -220,7 +227,19 @@ function pauseAllVideos() {
   document.querySelectorAll('video').forEach(v => v.pause());
 }
 
+/* Build flags — galleries are built once on first open to avoid eager loading */
+const _galleryBuilt = { photo: false, video: false };
+
 function openModal(id) {
+  // Lazy-build galleries on first open
+  if (id === 'photoGalleryModal' && !_galleryBuilt.photo) {
+    buildPhotoGallery();
+    _galleryBuilt.photo = true;
+  }
+  if (id === 'videoGalleryModal' && !_galleryBuilt.video) {
+    buildVideoGallery();
+    _galleryBuilt.video = true;
+  }
   const m = document.getElementById(id);
   m.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -233,10 +252,6 @@ function closeModal(id) {
   const innerVideos = m.querySelectorAll('video');
   innerVideos.forEach(v => v.pause());
 }
-
-// Build galleries once
-buildPhotoGallery();
-buildVideoGallery();
 
 // Photo gallery triggers
 document.getElementById('openPhotoGallery').addEventListener('click', () => openModal('photoGalleryModal'));
@@ -268,17 +283,25 @@ document.addEventListener('keydown', e => {
 });
 
 /* =============================================
-   PDF SCHEDULE MODAL — open on card click
+   PDF SCHEDULE MODAL — open on card click (lazy-loads PDF src)
 ============================================= */
 [
-  { cardId: 'scheduleCard', modalId: 'pdfScheduleModal', closeId: 'closePdfSchedule' },
-  { cardId: 'scheduleCard2', modalId: 'pdfScheduleModal2', closeId: 'closePdfSchedule2' },
-  { cardId: 'scheduleCard3', modalId: 'pdfScheduleModal3', closeId: 'closePdfSchedule3' },
-].forEach(({ cardId, modalId, closeId }) => {
+  { cardId: 'scheduleCard',  modalId: 'pdfScheduleModal',  closeId: 'closePdfSchedule',  iframeId: 'scheduleIframe'  },
+  { cardId: 'scheduleCard2', modalId: 'pdfScheduleModal2', closeId: 'closePdfSchedule2', iframeId: 'scheduleIframe2' },
+  { cardId: 'scheduleCard3', modalId: 'pdfScheduleModal3', closeId: 'closePdfSchedule3', iframeId: 'scheduleIframe3' },
+].forEach(({ cardId, modalId, closeId, iframeId }) => {
   const card = document.getElementById(cardId);
   if (!card) return;
 
-  function openSchedule() { openModal(modalId); }
+  function openSchedule() {
+    // Lazy-load the PDF: set src from data-src on first open only.
+    // Note: an iframe with no src attribute returns window.location.href via .src
+    const iframe = document.getElementById(iframeId);
+    if (iframe && iframe.dataset.src && iframe.src !== iframe.dataset.src) {
+      iframe.src = iframe.dataset.src;
+    }
+    openModal(modalId);
+  }
 
   card.addEventListener('click', openSchedule);
   card.addEventListener('keydown', e => {
@@ -369,6 +392,36 @@ document.addEventListener('keydown', e => {
   // Use event delegation on the grid since tiles are injected dynamically.
   const videoGrid = document.getElementById('videoGalleryGrid');
   if (videoGrid) {
+    // Click on .gv-poster or .gallery-video-wrap → open theatre
+    videoGrid.addEventListener('click', e => {
+      const wrap = e.target.closest('.gallery-video-wrap');
+      if (!wrap) return;
+      const src = wrap.dataset.src;
+      const label = wrap.dataset.label || 'Gallery Video';
+      if (!src) return;
+      // Hide the poster overlay so the video shows underneath
+      const poster = wrap.querySelector('.gv-poster');
+      if (poster) poster.classList.add('hidden');
+      e.stopPropagation();
+      openTheatre(src, label);
+    });
+
+    // Keyboard accessibility: Enter / Space on .gv-poster
+    videoGrid.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const poster = e.target.closest('.gv-poster');
+      if (!poster) return;
+      e.preventDefault();
+      const wrap = poster.closest('.gallery-video-wrap');
+      if (!wrap) return;
+      const src = wrap.dataset.src;
+      const label = wrap.dataset.label || 'Gallery Video';
+      if (!src) return;
+      poster.classList.add('hidden');
+      openTheatre(src, label);
+    });
+
+    // Prevent double-play: pause all others when one plays
     videoGrid.addEventListener('play', e => {
       const playingVid = e.target;
       if (playingVid.tagName === 'VIDEO') {

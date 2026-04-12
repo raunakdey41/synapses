@@ -307,7 +307,7 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d1" aria-label="Lab experiment video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo1" playsinline controls aria-label="Lab experiment video" tabindex="0"
+            <video class="lab-video" id="labVideo1" playsinline controls preload="none" aria-label="Lab experiment video" tabindex="0"
               src="assets/videos/cover/cov_v1.mp4">
               Your browser does not support the video tag.
             </video>
@@ -333,11 +333,14 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d2" aria-label="Class video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo2" playsinline controls aria-label="Class video" tabindex="0"
+            <video class="lab-video" id="labVideo2" playsinline controls preload="none" aria-label="Class video" tabindex="0"
               src="assets/videos/cover/cov_v2.mp4">
               Your browser does not support the video tag.
             </video>
             <div class="lab-poster" id="labPoster2" role="button" tabindex="0" aria-label="Play lab experiment 2">
+              <div class="lab-poster-bg"
+                style="background-image: url('assets/videos/thumbnail/ohms-law2.webp'); background-size: cover; background-position: center;">
+              </div>
               <div class="hc tl" aria-hidden="true"></div>
               <div class="hc tr" aria-hidden="true"></div>
               <div class="hc bl" aria-hidden="true"></div>
@@ -356,11 +359,14 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d3" aria-label="Lab experiment video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo3" playsinline controls aria-label="Lab experiment video" tabindex="0"
+            <video class="lab-video" id="labVideo3" playsinline controls preload="none" aria-label="Lab experiment video" tabindex="0"
               src="assets/videos/cover/cov_v3.mp4">
               Your browser does not support the video tag.
             </video>
             <div class="lab-poster" id="labPoster3" role="button" tabindex="0" aria-label="Play lab experiment 3">
+              <div class="lab-poster-bg"
+                style="background-image: url('assets/videos/thumbnail/th2.webp'); background-size: cover; background-position: center;">
+              </div>
               <div class="hc tl" aria-hidden="true"></div>
               <div class="hc tr" aria-hidden="true"></div>
               <div class="hc bl" aria-hidden="true"></div>
@@ -530,7 +536,7 @@
         <button class="gallery-close-btn" id="closePdfSchedule" aria-label="Close schedule">✕</button>
       </div>
       <div class="gallery-modal-body pdf-modal-body">
-        <iframe id="scheduleIframe" src="assets/routine/X_Mock_Physics.pdf" title="Course Schedule PDF"
+        <iframe id="scheduleIframe" data-src="assets/routine/X_Mock_Physics.pdf" title="Course Schedule PDF"
           aria-label="Course Schedule PDF viewer" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
@@ -549,7 +555,7 @@
         <button class="gallery-close-btn" id="closePdfSchedule2" aria-label="Close schedule">✕</button>
       </div>
       <div class="gallery-modal-body pdf-modal-body">
-        <iframe id="scheduleIframe2" src="assets/routine/XI-Exam-Routine-26.pdf" title="Course Schedule PDF"
+        <iframe id="scheduleIframe2" data-src="assets/routine/XI-Exam-Routine-26.pdf" title="Course Schedule PDF"
           aria-label="Course Schedule PDF viewer" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
@@ -567,7 +573,7 @@
         <button class="gallery-close-btn" id="closePdfSchedule3" aria-label="Close schedule">✕</button>
       </div>
       <div class="gallery-modal-body pdf-modal-body">
-        <iframe id="scheduleIframe3" src="assets/routine/X_Mock_Maths.pdf" title="Course Schedule PDF"
+        <iframe id="scheduleIframe3" data-src="assets/routine/X_Mock_Maths.pdf" title="Course Schedule PDF"
           aria-label="Course Schedule PDF viewer" frameborder="0" allowfullscreen></iframe>
       </div>
     </div>
