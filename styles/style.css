@@ -68,10 +68,10 @@ body {
     }
 }
 
-body::before,
-body::after {
+.hero-section::before,
+.hero-section::after {
     content: '';
-    position: fixed;
+    position: absolute;
     top: 0;
     bottom: 0;
     width: 480px;
@@ -81,7 +81,7 @@ body::after {
     animation: glow-breathe 7s ease-in-out infinite;
 }
 
-body::before {
+.hero-section::before {
     left: 0;
     transform-origin: left center;
     background:
@@ -95,7 +95,7 @@ body::before {
             transparent 65%);
 }
 
-body::after {
+.hero-section::after {
     right: 0;
     transform-origin: right center;
     animation-delay: 3.5s;
@@ -290,6 +290,8 @@ button {
     padding: 125px 0 60px;
     background: var(--bg);
     transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
 }
 
 .hero-inner {
