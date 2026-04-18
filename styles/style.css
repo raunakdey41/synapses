@@ -138,6 +138,29 @@ button {
 }
 
 /* =============================================
+    SKIP LINK (Accessibility)
+============================================= */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 16px;
+    z-index: 9999;
+    background: var(--maroon);
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0 0 8px 8px;
+    text-decoration: none;
+    transition: top 0.2s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* =============================================
     SCROLL REVEAL
 ============================================= */
 .reveal {
@@ -272,6 +295,44 @@ button {
     background: #600000;
     transform: translateY(-1px);
     box-shadow: 0 4px 16px rgba(128, 0, 0, 0.35);
+}
+
+/* Hamburger button — visible only on mobile */
+.nav-hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1.5px solid var(--border-yellow);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.nav-hamburger span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--text-head);
+    border-radius: 2px;
+    transition: transform 0.25s, opacity 0.25s, background 0.3s;
+}
+
+.nav-hamburger[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-hamburger[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-hamburger[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* =============================================
@@ -1321,8 +1382,42 @@ footer {
         padding: 0 20px;
     }
 
+    .nav-hamburger {
+        display: flex;
+    }
+
     .nav-links {
         display: none;
+        position: fixed;
+        top: 99px;
+        left: 0;
+        right: 0;
+        background: var(--nav-bg);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        gap: 0;
+        padding: 12px 0 16px;
+        z-index: 199;
+    }
+
+    .nav-links.nav-open {
+        display: flex;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+
+    .nav-links a {
+        display: block;
+        padding: 12px 28px;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-links li:last-child a {
+        border-bottom: none;
     }
 
     .hero-inner {
@@ -2324,4 +2419,45 @@ footer {
 .lab-video-wrap:hover .lab-poster,
 .gallery-video-wrap:hover video {
     outline: 2px solid rgba(232, 194, 0, 0.3);
+}
+
+/* =============================================
+    FOCUS INDICATORS (Accessibility)
+============================================= */
+:focus-visible {
+    outline: 2px solid var(--yellow);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Remove default outline only when :focus-visible is supported */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Specific high-contrast focus for dark backgrounds */
+.gallery-modal-overlay :focus-visible,
+.theatre-overlay :focus-visible {
+    outline-color: var(--yellow);
+    outline-width: 2px;
+}
+
+/* =============================================
+    RESPONSIVE VIDEO (Responsiveness fix)
+============================================= */
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+.lab-video {
+    width: 100%;
+    height: 100%;
+}
+
+/* f-ico SVG alignment */
+.f-ico svg {
+    display: block;
+    color: var(--yellow);
+    stroke: var(--yellow);
 }

@@ -5,6 +5,34 @@ const ro = new IntersectionObserver(entries => {
 }, { threshold: 0.1 });
 revealEls.forEach(el => ro.observe(el));
 
+/* --- Hamburger Menu (Mobile) --- */
+(function () {
+  const hamburger = document.getElementById('navHamburger');
+  const navLinks = document.getElementById('navLinks');
+  if (!hamburger || !navLinks) return;
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = navLinks.classList.toggle('nav-open');
+    hamburger.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  // Close menu when a nav link is clicked
+  navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      navLinks.classList.remove('nav-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close menu on outside click
+  document.addEventListener('click', e => {
+    if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+      navLinks.classList.remove('nav-open');
+      hamburger.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+
 /* --- Input sanitizer (XSS) --- */
 function sanitize(s) {
   return s.replace(/[<>"'&\/]/g, c => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#x27;', '&': '&amp;', '/': '&#x2F;' }[c]));
@@ -230,6 +258,16 @@ function pauseAllVideos() {
 /* Build flags — galleries are built once on first open to avoid eager loading */
 const _galleryBuilt = { photo: false, video: false };
 
+/** Returns all keyboard-focusable elements inside a container */
+function getFocusable(container) {
+  return Array.from(container.querySelectorAll(
+    'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+  )).filter(el => !el.closest('[hidden]') && el.offsetParent !== null);
+}
+
+/** Tracks the element that triggered a modal so we can return focus on close */
+let _modalOpener = null;
+
 function openModal(id) {
   // Lazy-build galleries on first open
   if (id === 'photoGalleryModal' && !_galleryBuilt.photo) {
@@ -240,10 +278,33 @@ function openModal(id) {
     buildVideoGallery();
     _galleryBuilt.video = true;
   }
+  _modalOpener = document.activeElement;
   const m = document.getElementById(id);
   m.classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // Move focus to the first focusable element inside the modal
+  requestAnimationFrame(() => {
+    const focusable = getFocusable(m);
+    if (focusable.length) focusable[0].focus();
+  });
+
+  // Trap focus inside the modal
+  m._trapFocus = function (e) {
+    if (e.key !== 'Tab') return;
+    const focusable = getFocusable(m);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  m.addEventListener('keydown', m._trapFocus);
 }
+
 function closeModal(id) {
   const m = document.getElementById(id);
   m.classList.remove('open');
@@ -251,6 +312,16 @@ function closeModal(id) {
   // Stop any videos playing inside the closed modal
   const innerVideos = m.querySelectorAll('video');
   innerVideos.forEach(v => v.pause());
+  // Remove focus trap
+  if (m._trapFocus) {
+    m.removeEventListener('keydown', m._trapFocus);
+    delete m._trapFocus;
+  }
+  // Return focus to the element that opened the modal
+  if (_modalOpener && _modalOpener.focus) {
+    _modalOpener.focus();
+    _modalOpener = null;
+  }
 }
 
 // Photo gallery triggers
@@ -286,7 +357,7 @@ document.addEventListener('keydown', e => {
    PDF SCHEDULE MODAL — open on card click (lazy-loads PDF src)
 ============================================= */
 [
-  { cardId: 'scheduleCard',  modalId: 'pdfScheduleModal',  closeId: 'closePdfSchedule',  iframeId: 'scheduleIframe'  },
+  { cardId: 'scheduleCard', modalId: 'pdfScheduleModal', closeId: 'closePdfSchedule', iframeId: 'scheduleIframe' },
   { cardId: 'scheduleCard2', modalId: 'pdfScheduleModal2', closeId: 'closePdfSchedule2', iframeId: 'scheduleIframe2' },
   { cardId: 'scheduleCard3', modalId: 'pdfScheduleModal3', closeId: 'closePdfSchedule3', iframeId: 'scheduleIframe3' },
 ].forEach(({ cardId, modalId, closeId, iframeId }) => {

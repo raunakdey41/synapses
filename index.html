@@ -1,10 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-IN">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Mathemaniac — Advanced Educational Platform</title>
+  <title>IIT-JEE &amp; NEET Coaching in Kolkata | The Mathemaniac</title>
+  <meta name="description"
+    content="The Mathemaniac by Synapse EduTech offers expert IIT-JEE, NEET, Engineering Math, and Olympiad coaching in Madhyamgram, Kolkata. Enroll now for the Fall semester.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://synapseedutech.in/">
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://synapseedutech.in/">
+  <meta property="og:title" content="IIT-JEE &amp; NEET Coaching in Kolkata | The Mathemaniac">
+  <meta property="og:description"
+    content="Expert IIT-JEE, NEET, Engineering Math, and Olympiad coaching in Madhyamgram, Kolkata. Enroll now for the Fall semester.">
+  <meta property="og:image" content="https://synapseedutech.in/assets/images/cover/cov_p1.jpeg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="IIT-JEE &amp; NEET Coaching in Kolkata | The Mathemaniac">
+  <meta name="twitter:description"
+    content="Expert IIT-JEE, NEET, Engineering Math, and Olympiad coaching in Madhyamgram, Kolkata.">
+  <meta name="twitter:image" content="https://synapseedutech.in/assets/images/cover/cov_p1.jpeg">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "EducationalOrganization",
+        "@id": "https://synapseedutech.in/#organization",
+        "name": "The Mathemaniac",
+        "alternateName": "Synapse EduTech",
+        "url": "https://synapseedutech.in",
+        "logo": "https://synapseedutech.in/assets/logo/Mathemaniac_Logo.png",
+        "description": "Expert IIT-JEE, NEET, Engineering Math, and Olympiad coaching institute in Madhyamgram, Kolkata.",
+        "telephone": ["+91-9831754957", "+91-7890302020"],
+        "email": "themathemaniac@outlook.com",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Bankimpally, Madhyamgram Municipality ward 20",
+          "addressLocality": "Madhyamgram",
+          "addressRegion": "West Bengal",
+          "postalCode": "700129",
+          "addressCountry": "IN"
+        },
+        "sameAs": [
+          "https://www.instagram.com/themathemaniac.official/",
+          "https://www.facebook.com/share/1JktmwxpxU/"
+        ]
+      },
+      {
+        "@type": "Course",
+        "name": "IIT-JEE Advanced & Mains Coaching",
+        "description": "Comprehensive IIT-JEE Advanced and Mains preparation for engineering aspirants in Kolkata.",
+        "provider": { "@id": "https://synapseedutech.in/#organization" }
+      },
+      {
+        "@type": "Course",
+        "name": "NEET Medical Entrance Coaching",
+        "description": "Expert NEET preparation coaching for medical aspirants in Madhyamgram, Kolkata.",
+        "provider": { "@id": "https://synapseedutech.in/#organization" }
+      },
+      {
+        "@type": "Course",
+        "name": "Olympiad & IIT Foundation",
+        "description": "Competition prep and IIT Foundation courses for school students.",
+        "provider": { "@id": "https://synapseedutech.in/#organization" }
+      },
+      {
+        "@type": "AggregateRating",
+        "itemReviewed": { "@id": "https://synapseedutech.in/#organization" },
+        "ratingValue": "4.8",
+        "reviewCount": "3"
+      }
+    ]
+  }
+  </script>
+
   <link rel="shortcut icon" href="assets/logo/Mathemaniac_Logo.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,6 +89,9 @@
 </head>
 
 <body>
+
+  <!-- Skip Navigation (Accessibility) -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
   <!-- ===========================
        NAVBAR
@@ -29,7 +106,7 @@
         <span class="nav-logo-subtitle">A unit of Synapse EduTech</span>
       </span>
     </a>
-    <ul class="nav-links" role="list">
+    <ul class="nav-links" role="list" id="navLinks">
       <li><a href="#courses">Programs</a></li>
       <li><a href="#about">About</a></li>
       <li><a href="#enroll">Admissions</a></li>
@@ -37,12 +114,17 @@
     </ul>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSeomPcxqDxG4vMPZ4BL-LnZr2OOe3R_nGnAXw-uagqa_YL5Fw/viewform?usp=dialog"
       target="_blank" rel="noopener noreferrer" class="nav-enroll-btn" aria-label="Enroll now">Enroll</a>
+    <!-- Hamburger toggle (mobile only) -->
+    <button class="nav-hamburger" id="navHamburger" aria-label="Toggle navigation menu" aria-expanded="false"
+      aria-controls="navLinks">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
 
   <!-- ===========================
        HERO
   =========================== -->
-  <section class="hero-section" aria-label="Hero section">
+  <section class="hero-section" aria-label="Hero section" id="main-content">
     <div class="container">
       <div class="hero-inner">
 
@@ -79,7 +161,8 @@
 
         <!-- Right: Swipeable Photo Card Stack -->
         <div class="hero-img-col reveal d1">
-          <div class="card-stack-scene" aria-label="Institute photo gallery" role="region">
+          <div class="card-stack-scene" aria-label="Institute photo gallery — use arrow keys or swipe to navigate"
+            role="region" aria-roledescription="carousel">
 
             <!-- Stack depth cards (purely decorative background layers) -->
             <div class="stack-ghost stack-ghost-3" aria-hidden="true"></div>
@@ -233,7 +316,7 @@
           aria-label="View course schedule (PDF)" title="Click to view the course schedule">
           <div class="cc-thumb cc-thumb--schedule">
             <div class="schedule-card-inner">
-              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/physics.webp" alt=""
+              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/physics.webp" alt="Physics subject icon"
                   style="width:2.8rem;height:2.8rem;object-fit:contain;display:block;margin:0 auto;"></div>
               <div class="sch-label">Course Schedule for <br> Class X Physics</div>
               <div class="sch-sub">Click to view PDF</div>
@@ -245,7 +328,8 @@
           aria-label="View course schedule (PDF)" title="Click to view the course schedule">
           <div class="cc-thumb cc-thumb--schedule">
             <div class="schedule-card-inner">
-              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/chemistry.webp" alt=""
+              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/chemistry.webp"
+                  alt="Chemistry subject icon"
                   style="width:2.8rem;height:2.8rem;object-fit:contain;display:block;margin:0 auto;"></div>
               <div class="sch-label">Course Schedule for <br> Class XI Chemistry</div>
               <div class="sch-sub">Click to view PDF</div>
@@ -257,7 +341,7 @@
           aria-label="View course schedule (PDF)" title="Click to view the course schedule">
           <div class="cc-thumb cc-thumb--schedule">
             <div class="schedule-card-inner">
-              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/maths.webp" alt=""
+              <div class="sch-icon" aria-hidden="true"><img src="assets/logo/maths.webp" alt="Mathematics subject icon"
                   style="width:2.8rem;height:2.8rem;object-fit:contain;display:block;margin:0 auto;"></div>
               <div class="sch-label">Course Schedule for <br> Class X Maths</div>
               <div class="sch-sub">Click to view PDF</div>
@@ -307,8 +391,8 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d1" aria-label="Lab experiment video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo1" playsinline controls preload="none" aria-label="Lab experiment video" tabindex="0"
-              src="assets/videos/cover/cov_v1.mp4">
+            <video class="lab-video" id="labVideo1" playsinline controls preload="none"
+              aria-label="Lab experiment video" tabindex="0" src="assets/videos/cover/cov_v1.mp4">
               Your browser does not support the video tag.
             </video>
             <div class="lab-poster" id="labPoster1" role="button" tabindex="0" aria-label="Play lab experiment 1">
@@ -333,8 +417,8 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d2" aria-label="Class video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo2" playsinline controls preload="none" aria-label="Class video" tabindex="0"
-              src="assets/videos/cover/cov_v2.mp4">
+            <video class="lab-video" id="labVideo2" playsinline controls preload="none" aria-label="Class video"
+              tabindex="0" src="assets/videos/cover/cov_v2.mp4">
               Your browser does not support the video tag.
             </video>
             <div class="lab-poster" id="labPoster2" role="button" tabindex="0" aria-label="Play lab experiment 2">
@@ -359,8 +443,8 @@
         ═══════════════════════════════════════════ -->
         <article class="lab-card reveal d3" aria-label="Lab experiment video">
           <div class="lab-video-wrap">
-            <video class="lab-video" id="labVideo3" playsinline controls preload="none" aria-label="Lab experiment video" tabindex="0"
-              src="assets/videos/cover/cov_v3.mp4">
+            <video class="lab-video" id="labVideo3" playsinline controls preload="none"
+              aria-label="Lab experiment video" tabindex="0" src="assets/videos/cover/cov_v3.mp4">
               Your browser does not support the video tag.
             </video>
             <div class="lab-poster" id="labPoster3" role="button" tabindex="0" aria-label="Play lab experiment 3">
@@ -436,17 +520,35 @@
         <div>
           <div class="f-col-title">Contact Us</div>
           <div class="f-contact-row">
-            <span class="f-ico" aria-hidden="true">⊙</span>
+            <span class="f-ico" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+            </span>
             <span class="f-contact-text">Bankimpally, Madhyamgram Municipality ward 20, Madhyamgram, Kolkata, West
               Bengal 700129</span>
           </div>
           <div class="f-contact-row">
-            <span class="f-ico" aria-hidden="true">☎</span>
+            <span class="f-ico" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.69h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.1a16 16 0 0 0 6 6l1.27-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+            </span>
             <span class="f-contact-text">+91 9831754957</span>
             <span class="f-contact-text">+91 7890302020</span>
           </div>
           <div class="f-contact-row">
-            <span class="f-ico" aria-hidden="true">✉</span>
+            <span class="f-ico" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </span>
             <span class="f-contact-text"><a
                 href="mailto:themathemaniac@outlook.com">themathemaniac@outlook.com</a></span>
           </div>
